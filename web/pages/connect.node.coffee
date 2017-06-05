@@ -1,6 +1,6 @@
-sbserv = require("../server.coffee").sbserv
+sbserv = require("../server.js").sbserv
 
-data = (res, req) ->
+post = (res, req) ->
     if req.ip in sbserv.ips
         if sbserv.newUser(req.ip, req.body.nick)
             "{continue: true}"
@@ -9,6 +9,6 @@ data = (res, req) ->
             "{continue: false}"
 
 module.exports = {
-    data: data
+    post: post
     address: "connect"
 }

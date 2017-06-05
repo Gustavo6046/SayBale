@@ -1,10 +1,10 @@
-sbserv = require("../server.coffee").sbserv
+sbserv = require("../server.js").sbserv
 
-data = (res, req) ->
+post = (res, req) ->
     if req.ip in sbserv.ips
         JSON.stringify(sbserv.serveAjax(req.ip, "getchat", req.body))
 
 module.exports = {
-    data: data
+    post: post
     address: "getchat"
 }

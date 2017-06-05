@@ -1,5 +1,3 @@
-dynasite = require("./request.coffee")
+dynasite = require("./request.js")
 
-app = dynasite.DynasiteApp()
-app.webFolder("pages/")
-app.done()
+dynasite.webFolder("pages/", dynasite.done)

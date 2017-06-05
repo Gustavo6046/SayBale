@@ -1,11 +1,11 @@
-sbserv = require("../server.coffee").sbserv
+sbserv = require("../server.js").sbserv
 
-data = (res, req) ->
+post = (res, req) ->
     if req.ip in sbserv.ips
         sbserv.disconnect(req.ip, sbserv.ips[req.ip])
         "{}"
 
 module.exports = {
-    data: data
+    post: post
     address: "disconnect"
 }

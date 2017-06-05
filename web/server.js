@@ -15,9 +15,11 @@
     if (indexOf.call(sbserv.users, nick) >= 0) {
       false;
     }
+    sbserv.relay("--> " + nick + " joined");
     sbserv.users.push(nick);
     sbserv.pendingData[nick] = [];
     sbserv.ips[ip] = nick;
+    sbserv.relay();
     return true;
   };
 
@@ -26,6 +28,7 @@
     if (sbserv.ips[ip] !== nick) {
       false;
     }
+    sbserv.relay("<-- " + nick + " left");
     sbserv.users.remove(nick);
     sbserv.pendingData[nick] = void 0;
     ref = sbserv.ips;
@@ -38,18 +41,23 @@
     return true;
   };
 
-  sbserv.relay = function(nick, text) {
-    return sbserv.pendingData[nick].push({
-      nick: nick,
-      text: text
-    });
+  sbserv.relay = function(text) {
+    var i, k, len, ref, results;
+    ref = sbserv.pendingData;
+    results = [];
+    for (i = 0, len = ref.length; i < len; i++) {
+      k = ref[i];
+      results.push(sbserv.pendingData[k].push({
+        data: text
+      }));
+    }
+    return results;
   };
 
   sbserv.serveAjax = function(ip, addr, data) {
     var logs;
     if (addr === "sendchat") {
-      sbserv.relay(sbserv.ips[ip], data.text);
-      return {};
+      sbserv.relay("<" + sbserv.ips[ip] + "> " + data.text);
     } else if (addr === "getchat") {
       logs = sbserv.pendingData[sbsev.ips[ip]];
       sbserv.pendingData[sbsev.ips[ip]] = void 0;

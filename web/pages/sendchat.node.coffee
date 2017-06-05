@@ -1,11 +1,11 @@
-sbserv = require("../server.coffee").sbserv
+sbserv = require("../server.js").sbserv
 
-data = (res, req) ->
+post = (res, req) ->
     if req.ip in sbserv.ips
         sbserv.serveAjax(req.ip, "sendchat", req.body)
         "{}"
 
 module.exports = {
-    data: data
+    post: post
     address: "sendchat"
 }

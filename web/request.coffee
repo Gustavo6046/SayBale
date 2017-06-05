@@ -1,51 +1,95 @@
 express = require('express')
+bodyParser = require('body-parser')
+fs = require('fs')
+path = require('path')
+mime = require('mime')
 
-class DynasiteApp
-    constructor = ->
-        @app = express()
-        @modules = []
 
-        @app.use(bodyParser.urlencoded({ extended: false }))
-        @app.use(bodyParser.json())
+app = express()
+modules = []
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json())
 
-    webFolder = (f) ->
-        fs.readdir(fxs (err, files) ->
-            if err
-                throw err
 
-            for fn in fxs
-                if f.endsWith(".node") or f.endsWith(".node.js")
-                    module = require(fn)
+startsWith = (s, sub) ->
+    return s.slice(0, sub.length) == sub
 
-                    @app.get(fn.address, (req, res) ->
-                        res.send(fn.data(req, res))
-                    )
+endsWith = (s, sub) ->
+    sub = sub.split("").reverse().join("")
+    s = s.split("").reverse().join("")
 
-                    @modules.push(module)
+    return startsWith(s, sub)
 
-                else
-                    @app.get(path.relative(f, fn), (req, res) ->
-                        fs.readFile(fn, (err, data) ->
-                            if err
-                                throw err
+serve = (folder, fname, base) ->
+    if not base?
+        base = ""
 
-                            res.send(data)
-                        )
-                    )
+    if fs.lstatSync(path.join(folder, fname)).isDirectory()
+        return webFolder(path.join(folder, fname), undefined, path.join(base, fname))
+
+    if endsWith(fname, ".node") or endsWith(fname, ".node.js")
+        module = require("./" + path.join(base, folder, fname))
+
+        console.log("Using '#{fname}' at address '/#{module.address}'")
+
+        if module.get?
+            app.get('/' + module.address, (req, res) ->
+                console.log("Attending GET request from #{req.ip} for #{fname}")
+
+                res.send(module.get(req, res))
+            )
+
+        if module.post?
+            app.post('/' + module.address, (req, res) ->
+                console.log("Attending POST request from #{req.ip} for #{fname}")
+
+                res.send(module.post(req, res))
+            )
+
+        modules.push(module)
+
+    else
+        console.log("Using '#{fname}' at address '/#{path.join(base, fname).replace(/\\/g,"/")}'...'")
+
+        app.get('/' + path.join(base, fname).replace(/\\/g,"/"), (req, res) ->
+            console.log("Attending GET request from #{req.ip} for #{fname}")
+
+            res.setHeader('Content-type', mime.lookup(path.join(base, folder, fname)))
+            res.send(fs.readFileSync(path.join(base, folder, fname)))
         )
 
-    done = (port) ->
-        if not port?
-            port = 3000
+webFolder = (f, next, base) ->
+    console.log("Serving '#{f}'...")
 
-        @app.listen(port, ->
-            console.log("Listening on port #{port}.")
+    if not base?
+        base = ""
 
-            for m in @modules
-                if m.init?
-                    m.init(port)
+    fs.readdir(f, (err, files) ->
+        if err
+            throw err
+
+        for fn in files
+            serve(f, fn, base)
+
+        if next?
+            next()
+    )
+
+done = (port) ->
+    if not port?
+        port = 3000
+
+    app.listen(port, ->
+        console.log("Listening on port #{port}.")
+
+        for m in modules
+            if m.init?
+                m.init(port)
         )
         
 module.exports = {
-    DynasiteApp: DynasiteApp
+    done: done
+    webFolder: webFolder
+    app: app
+    serve: serve
 }

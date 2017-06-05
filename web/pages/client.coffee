@@ -5,13 +5,13 @@ connect = (again) ->
         again = false
 
     if again
-        nick = Window.prompt("Already used! Use another nickname:", "default_user1")
+        nick = window.prompt("Already used! Use another nickname:", "default_user1")
 
     else
-        nick = Window.prompt("Set your nickname:", "default_user")
+        nick = window.prompt("Set your nickname:", "default_user")
 
-    $.get(
-        window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1) + "/connect",
+    $.post(
+        window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1) + "connect",
         { nick: nick },
         (data, status, req) ->
             if not data.continue
@@ -23,38 +23,35 @@ sendText = ->
     if not nicked
         false
 
-    inputBox = document.getElementByID("textArea")
+    inputBox = document.getElementById("textArea")
     data = inputBox.value
 
-    $.get(
-        window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1) + "/sendchat",
+    if data == ""
+        false
+
+    $.post(
+        window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1) + "sendchat",
         { text: data },
         null,
         "json"
     )
 
+    inputBox.value = ""
+
     true
 
 parse = (logs) ->
     for d in logs
-        document.getElementByID("logs").innerHTML += "\n<#{logs.nickname}> #{logs.data}"
+        document.getElementById("logs").innerHTML += "\n#{d.data}"
 
 mainLoop = ->
-    $.get(
-        window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1) + "/getchat",
+    $.post(
+        window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1) + "getchat",
         {},
-        (data, status, req) ->
+        (data, status, req) ->  
             parse(data.logs)
-            Window.setTimeout(data.next, mainLoop)
+            window.setTimeout(data.next, mainLoop)
 
-        "json"
-    )
-
-window.onunload = ->
-    $.get(
-        window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1) + "/disconnect",
-        {},
-        null,
         "json"
     )
 
