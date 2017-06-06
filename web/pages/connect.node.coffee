@@ -1,11 +1,11 @@
 sbserv = require("../server.js").sbserv
 
-post = (res, req) ->
+post = (req, res) ->
     if sbserv.newUser(req.ip, req.body.nick)
-        res.send("{continue: true}")
+        {continue: true}
 
     else
-        res.send("{continue: false}")
+        {continue: false}
 
 module.exports = {
     post: post

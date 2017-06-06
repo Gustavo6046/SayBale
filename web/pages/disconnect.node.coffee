@@ -1,9 +1,9 @@
 sbserv = require("../server.js").sbserv
 
-post = (res, req) ->
+post = (req, res) ->
     if req.ip in sbserv.ips
         sbserv.disconnect(req.ip, sbserv.ips[req.ip])
-        res.send("{}")
+        {}
 
 module.exports = {
     post: post

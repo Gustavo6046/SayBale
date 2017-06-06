@@ -6,7 +6,6 @@ mime = require('mime')
 
 app = express()
 modules = []
-app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
 

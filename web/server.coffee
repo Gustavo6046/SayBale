@@ -10,7 +10,7 @@ sbserv.newUser = (ip, nick) ->
     sbserv.relay("--> #{nick} joined")
 
     sbserv.users.push(nick)
-    sbserv.pendingData[nick] = []
+    sbserv.pendingData[nick] = ["--- Users: #{sbserv.users.join(" ")}"]
     sbserv.ips[ip] = nick
 
     sbserv.relay()

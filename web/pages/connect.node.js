@@ -3,11 +3,15 @@ var post, sbserv;
 
 sbserv = require("../server.js").sbserv;
 
-post = function(res, req) {
+post = function(req, res) {
   if (sbserv.newUser(req.ip, req.body.nick)) {
-    return res.send("{continue: true}");
+    return {
+      "continue": true
+    };
   } else {
-    return res.send("{continue: false}");
+    return {
+      "continue": false
+    };
   }
 };
 

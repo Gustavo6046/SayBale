@@ -11,8 +11,8 @@ connect = (again) ->
         nick = window.prompt("Set your nickname:", "default_user")
 
     $.post(
-        window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1) + "connect",
-        { nick: nick },
+        "../connect",
+        "{ nick: nick }",
         (data, status, req) ->
             if not data.continue
                 connect(true)
@@ -29,7 +29,7 @@ sendText = ->
         false
 
     $.post(
-        window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1) + "sendchat",
+        "../sendchat",
         { text: data },
         null
     )
@@ -44,7 +44,7 @@ parse = (logs) ->
 
 mainLoop = ->
     $.post(
-        window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1) + "getchat",
+        "../getchat",
         {},
         (data, status, req) ->  
             if data.logs?

@@ -13,9 +13,7 @@ connect = function(again) {
   } else {
     nick = window.prompt("Set your nickname:", "default_user");
   }
-  return $.post(window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1) + "connect", {
-    nick: nick
-  }, function(data, status, req) {
+  return $.post("../connect", "{ nick: nick }", function(data, status, req) {
     if (!data["continue"]) {
       return connect(true);
     }
@@ -32,7 +30,7 @@ sendText = function() {
   if (data === "") {
     false;
   }
-  $.post(window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1) + "sendchat", {
+  $.post("../sendchat", {
     text: data
   }, null);
   inputBox.value = "";
@@ -50,7 +48,7 @@ parse = function(logs) {
 };
 
 mainLoop = function() {
-  return $.post(window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1) + "getchat", {}, function(data, status, req) {
+  return $.post("../getchat", {}, function(data, status, req) {
     if (data.logs != null) {
       parse(data.logs);
       return window.setTimeout(data.next, mainLoop);

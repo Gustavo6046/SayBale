@@ -4,10 +4,10 @@ var post, sbserv,
 
 sbserv = require("../server.js").sbserv;
 
-post = function(res, req) {
+post = function(req, res) {
   var ref;
   if (ref = req.ip, indexOf.call(sbserv.ips, ref) >= 0) {
-    return res.send(JSON.stringify(sbserv.serveAjax(req.ip, "getchat", req.body)));
+    return sbserv.serveAjax(req.ip, "getchat", req.body);
   }
 };
 

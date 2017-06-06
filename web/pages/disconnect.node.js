@@ -4,11 +4,11 @@ var post, sbserv,
 
 sbserv = require("../server.js").sbserv;
 
-post = function(res, req) {
+post = function(req, res) {
   var ref;
   if (ref = req.ip, indexOf.call(sbserv.ips, ref) >= 0) {
     sbserv.disconnect(req.ip, sbserv.ips[req.ip]);
-    return res.send("{}");
+    return {};
   }
 };
 

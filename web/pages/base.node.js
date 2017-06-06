@@ -5,8 +5,8 @@ fs = require("fs");
 
 mime = require("mime");
 
-get = function(res, req) {
-  res.setHeader('Content-type', mime.lookup("pages/index.html"));
+get = function(req, res) {
+  res.set('Content-type', mime.lookup("pages/index.html"));
   return fs.readFileSync("pages/index.html");
 };
 

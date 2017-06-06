@@ -1,9 +1,9 @@
 sbserv = require("../server.js").sbserv
 
-post = (res, req) ->
+post = (req, res) ->
     if req.ip in sbserv.ips
         sbserv.serveAjax(req.ip, "sendchat", req.body)
-        res.send("{}")
+        {}
 
 module.exports = {
     post: post

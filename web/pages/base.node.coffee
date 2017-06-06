@@ -1,8 +1,8 @@
 fs = require("fs")
 mime = require("mime")
 
-get = (res, req) ->
-    res.setHeader('Content-type', mime.lookup("pages/index.html"))
+get = (req, res) ->
+    res.set('Content-type', mime.lookup("pages/index.html"))
 
     fs.readFileSync("pages/index.html")
 
