@@ -1,0 +1,31 @@
+{
+  "name": "saybale",
+  "version": "0.1.0",
+  "description": "A quick and simple chatroom in Node.JS. ",
+  "main": "web/server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Gustavo6046/SayBale.git"
+  },
+  "keywords": [
+    "chat",
+    "test",
+    "simple",
+    "express",
+    "ajax"
+  ],
+  "author": "Gustavo Ramos \"Gustavo6046\" Rehermann",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Gustavo6046/SayBale/issues"
+  },
+  "homepage": "https://github.com/Gustavo6046/SayBale#readme",
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "express": "^4.15.3",
+    "mime": "^1.3.6"
+  }
+}
