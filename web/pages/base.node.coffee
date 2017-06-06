@@ -9,4 +9,5 @@ get = (res, req) ->
 module.exports = {
     get: get
     address: ""
+    mimetype: "html"
 }

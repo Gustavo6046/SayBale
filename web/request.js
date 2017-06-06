@@ -46,12 +46,14 @@
       if (module.get != null) {
         app.get('/' + module.address, function(req, res) {
           console.log("Attending GET request from " + req.ip + " for " + fname);
+          res.setHeader('Content-type', module.mimetype);
           return res.send(module.get(req, res));
         });
       }
       if (module.post != null) {
         app.post('/' + module.address, function(req, res) {
           console.log("Attending POST request from " + req.ip + " for " + fname);
+          res.setHeader('Content-type', module.mimetype);
           return res.send(module.post(req, res));
         });
       }

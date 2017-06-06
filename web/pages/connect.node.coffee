@@ -1,14 +1,14 @@
 sbserv = require("../server.js").sbserv
 
 post = (res, req) ->
-    if req.ip in sbserv.ips
-        if sbserv.newUser(req.ip, req.body.nick)
-            "{continue: true}"
+    if sbserv.newUser(req.ip, req.body.nick)
+        res.send("{continue: true}")
 
-        else
-            "{continue: false}"
+    else
+        res.send("{continue: false}")
 
 module.exports = {
     post: post
     address: "connect"
+    mimetype: "application/json"
 }

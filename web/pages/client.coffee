@@ -16,7 +16,6 @@ connect = (again) ->
         (data, status, req) ->
             if not data.continue
                 connect(true)
-        "json"
     )
 
 sendText = ->
@@ -32,8 +31,7 @@ sendText = ->
     $.post(
         window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1) + "sendchat",
         { text: data },
-        null,
-        "json"
+        null
     )
 
     inputBox.value = ""
@@ -49,10 +47,12 @@ mainLoop = ->
         window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1) + "getchat",
         {},
         (data, status, req) ->  
-            parse(data.logs)
-            window.setTimeout(data.next, mainLoop)
+            if data.logs?
+                parse(data.logs)
+                window.setTimeout(data.next, mainLoop)
 
-        "json"
+            else
+                window.setTimeout(5, mainLoop)
     )
 
 connect()

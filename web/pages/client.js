@@ -19,7 +19,7 @@ connect = function(again) {
     if (!data["continue"]) {
       return connect(true);
     }
-  }, "json");
+  });
 };
 
 sendText = function() {
@@ -34,7 +34,7 @@ sendText = function() {
   }
   $.post(window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1) + "sendchat", {
     text: data
-  }, null, "json");
+  }, null);
   inputBox.value = "";
   return true;
 };
@@ -51,9 +51,13 @@ parse = function(logs) {
 
 mainLoop = function() {
   return $.post(window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1) + "getchat", {}, function(data, status, req) {
-    parse(data.logs);
-    return window.setTimeout(data.next, mainLoop);
-  }, "json");
+    if (data.logs != null) {
+      parse(data.logs);
+      return window.setTimeout(data.next, mainLoop);
+    } else {
+      return window.setTimeout(5, mainLoop);
+    }
+  });
 };
 
 connect();

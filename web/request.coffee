@@ -4,7 +4,6 @@ fs = require('fs')
 path = require('path')
 mime = require('mime')
 
-
 app = express()
 modules = []
 app.use(bodyParser.urlencoded({ extended: false }))
@@ -36,6 +35,7 @@ serve = (folder, fname, base) ->
             app.get('/' + module.address, (req, res) ->
                 console.log("Attending GET request from #{req.ip} for #{fname}")
 
+                res.setHeader('Content-type', module.mimetype)
                 res.send(module.get(req, res))
             )
 
@@ -43,6 +43,7 @@ serve = (folder, fname, base) ->
             app.post('/' + module.address, (req, res) ->
                 console.log("Attending POST request from #{req.ip} for #{fname}")
 
+                res.setHeader('Content-type', module.mimetype)
                 res.send(module.post(req, res))
             )
 
