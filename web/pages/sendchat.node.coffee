@@ -1,9 +1,13 @@
 sbserv = require("../server.js").sbserv
 
 post = (req, res) ->
-    if req.ip in sbserv.ips
-        sbserv.serveAjax(req.ip, "sendchat", req.body)
-        {}
+    console.log(JSON.stringify(req.body))
+
+    for a, _ of sbserv.ips
+        if req.get("X-FORWARDED-FOR") == a
+            sbserv.serveAjax(req.get("X-FORWARDED-FOR"), "sendchat", req.body)
+        
+    {}
 
 module.exports = {
     post: post

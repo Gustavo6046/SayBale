@@ -1,9 +1,11 @@
 sbserv = require("../server.js").sbserv
 
 post = (req, res) ->
-    if req.ip in sbserv.ips
-        sbserv.disconnect(req.ip, sbserv.ips[req.ip])
-        {}
+    for a, _ of sbserv.ips
+        if req.get("X-FORWARDED-FOR") == a
+            sbserv.disconnect(req.get("X-FORWARDED-FOR"), sbserv.ips[req.get("X-FORWARDED-FOR")])
+        
+    {}
 
 module.exports = {
     post: post

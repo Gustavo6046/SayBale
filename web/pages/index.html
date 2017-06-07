@@ -12,19 +12,27 @@
                 height: 100%;
                 margin: 0;
                 padding: 0;
+
+                color: #ffffff;
+                background-color: #1155dd;
+            }
+
+            #super {
+                height: 100%;
+                display: flex;
+                flex-direction: column;
             }
 
             #logs {
                 color: #00aa00;
                 background-color: #000;
+                flex: auto;
                 font-family: monospace;
-                height: 100%;
+                overflow: auto;
             }
 
             #inputs {
-                position: absolute;
-                bottom: 0;
-                padding: 2px;
+                flex: none;
             }
 
             #textArea {
@@ -40,9 +48,11 @@
     <body>
         <script type="text/javascript" src="client.js"></script>
 
-        <div id="logs">
+        <div id="super">
+            <div id="logs"> </div>
+
             <div id="inputs">
-                <input type="text" id="textArea" />
+                <input type="text" id="textArea" onkeypress="validateSendText(event)" />
                 <button type="button" id="sendButton" onclick="sendText()">Send!</button>
             </div>
         </div>

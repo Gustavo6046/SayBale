@@ -41,14 +41,14 @@
       console.log("Using '" + fname + "' at address '/" + module.address + "'");
       if (module.get != null) {
         app.get('/' + module.address, function(req, res) {
-          console.log("Attending GET request from " + req.ip + " for " + fname);
+          console.log("Attending GET request from " + req.ip + " (through URL " + (req.get("referer")) + " and remote IP " + (req.get("X-FORWARDED-FOR")) + ") for " + fname);
           res.setHeader('Content-type', module.mimetype);
           return res.send(module.get(req, res));
         });
       }
       if (module.post != null) {
         app.post('/' + module.address, function(req, res) {
-          console.log("Attending POST request from " + req.ip + " for " + fname);
+          console.log("Attending POST request from " + req.ip + " (through URL " + (req.get("referer")) + " and remote IP " + (req.get("X-FORWARDED-FOR")) + ") for " + fname);
           res.setHeader('Content-type', module.mimetype);
           return res.send(module.post(req, res));
         });
@@ -57,7 +57,7 @@
     } else {
       console.log("Using '" + fname + "' at address '/" + (path.join(base, fname).replace(/\\/g, "/")) + "'...'");
       return app.get('/' + path.join(base, fname).replace(/\\/g, "/"), function(req, res) {
-        console.log("Attending GET request from " + req.ip + " for " + fname);
+        console.log("Attending GET request from " + req.ip + " (through URL " + (req.get("referer")) + " and remote IP " + (req.get("X-FORWARDED-FOR")) + ") for " + fname);
         res.setHeader('Content-type', mime.lookup(path.join(base, folder, fname)));
         return res.send(fs.readFileSync(path.join(base, folder, fname)));
       });
