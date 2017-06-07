@@ -6,10 +6,10 @@ connect = (again) ->
         again = false
 
     if again
-        nick = window.prompt("Already used! Use another nickname:", "default_user1").replace("&", "&amp;").replace("<", "&lt;").replace("\"", "&quot;").replace("'", "&apos;")
+        nick = window.prompt("Already used! Use another nickname:", "default_user1").replace("&", "&amp;").replace("<", "&lt;").replace("\"", "&quot;").replace("'", "&apos;").slice(0, 50)
 
     else
-        nick = window.prompt("Set your nickname:", "default_user").replace("&", "&amp;").replace("<", "&lt;").replace("\"", "&quot;").replace("'", "&apos;")
+        nick = window.prompt("Set your nickname:", "default_user").replace("&", "&amp;").replace("<", "&lt;").replace("\"", "&quot;").replace("'", "&apos;").slice(0, 50)
 
     $.ajax(
         "../connect", {
@@ -56,18 +56,7 @@ parse = (logs) ->
                 new Audio("../highlight.wav").play()
                 d.text = d.text.replace(new RegExp(nick, "g"), '<span class="highlight"><span id="nick" /></span>').replace('<span id="nick" />', nick)
 
-            console.log("1. " + d.text)
-            d.text = d.text.replace(new RegExp("[a-zA-Z1-9]+\\:\\/\\/[^ \\)]+", "ig"), (x) -> "<turl>#{x}</turl>" )
-            console.log("2. " + d.text)
-            d.text = d.text.replace(new RegExp("img\\(\\<turl\\>[a-zA-Z1-9]+\\:\\/\\/[^\\<]+\\<\\/turl\\>\\)", "ig"), (x) ->
-                url = x.slice(10, x.length - 8)
-                "<a href=\"#{url}\"><img src=\"#{url}\"></a>"
-            )
-            console.log("3. " + d.text)
-            d.text = d.text.replace(new RegExp("\\<turl\\>([^\\<]+)\\<\\/turl\\>", "ig"), (x) ->
-                x.slice(5, x.length - 5)
-            )
-            console.log("4. " + d.text)
+            console.log(d.text)
 
             document.getElementById("logs").innerHTML += "</br>#{d.text}"
 

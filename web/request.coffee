@@ -66,24 +66,27 @@ serve = (folder, fname, base) ->
 
         modules.push(module)
 
+    
+        console.log("Also using '#{fname}' at address '/#{path.join(base, fname).replace(/\\/g,"/")}'...'")
+
     else
         console.log("Using '#{fname}' at address '/#{path.join(base, fname).replace(/\\/g,"/")}'...'")
 
-        app.get('/' + path.join(base, fname).replace(/\\/g,"/"), (req, res) ->
-            req.remoteIP = ->
-                o = @get("X-FORWARDED-FOR")
+    app.get('/' + path.join(base, fname).replace(/\\/g,"/"), (req, res) ->
+        req.remoteIP = ->
+            o = @get("X-FORWARDED-FOR")
 
-                if o?
-                    o
+            if o?
+                o
 
-                else
-                    @ip
+            else
+                @ip
 
-            console.log("Attending GET request from #{req.ip} (through URL #{req.get("referer")} and remote IP #{req.remoteIP()} for #{fname}")
+        console.log("Attending GET request from #{req.ip} (through URL #{req.get("referer")} and remote IP #{req.remoteIP()} for #{fname}")
 
-            res.setHeader('Content-type', mime.lookup(path.join(base, folder, fname)))
-            res.send(fs.readFileSync(path.join(base, folder, fname)))
-        )
+        res.setHeader('Content-type', mime.lookup(path.join(base, folder, fname)))
+        res.send(fs.readFileSync(path.join(base, folder, fname)))
+    )
 
 webFolder = (f, next, base) ->
     console.log("Serving '#{f}'...")

@@ -94,6 +94,17 @@ sbserv.serveAjax = function(ip, addr, data) {
     if (data.text === "") {
       return {};
     }
+    data.text = data.text.replace(new RegExp("[a-zA-Z1-9]+\\:\\/\\/[^ \\)]+", "ig"), function(x) {
+      return "<turl>" + x + "</turl>";
+    });
+    data.text = data.text.replace(new RegExp("img\\(\\<turl\\>[a-zA-Z1-9]+\\:\\/\\/[^\\<]+\\<\\/turl\\>\\)", "ig"), function(x) {
+      var url;
+      url = x.slice(10, x.length - 8);
+      return "<a href=\"" + url + "\"><img src=\"" + url + "\"></a>";
+    });
+    data.text = data.text.replace(new RegExp("\\<turl\\>([^\\<]+)\\<\\/turl\\>", "ig"), function(x) {
+      return "<a href=\"" + (x.slice(6, x.length - 7)) + "\">" + (x.slice(6, x.length - 7)) + "</a>";
+    });
     console.log("[CHAT] <" + sbserv.ips[ip] + "> " + data.text);
     sbserv.relay({
       text: "<" + sbserv.ips[ip] + "> " + data.text,

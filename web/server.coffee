@@ -56,6 +56,15 @@ sbserv.serveAjax = (ip, addr, data) ->
         if data.text == ""
             return {}
 
+        data.text = data.text.replace(new RegExp("[a-zA-Z1-9]+\\:\\/\\/[^ \\)]+", "ig"), (x) -> "<turl>#{x}</turl>" )
+        data.text = data.text.replace(new RegExp("img\\(\\<turl\\>[a-zA-Z1-9]+\\:\\/\\/[^\\<]+\\<\\/turl\\>\\)", "ig"), (x) ->
+            url = x.slice(10, x.length - 8)
+            "<a href=\"#{url}\"><img src=\"#{url}\"></a>"
+        )
+        data.text = data.text.replace(new RegExp("\\<turl\\>([^\\<]+)\\<\\/turl\\>", "ig"), (x) ->
+            "<a href=\"#{x.slice(6, x.length - 7)}\">#{x.slice(6, x.length - 7)}</a>"
+        )
+
         console.log("[CHAT] <#{sbserv.ips[ip]}> #{data.text}")
         sbserv.relay({ text: "<#{sbserv.ips[ip]}> #{data.text}", nick: sbserv.ips[ip], highlight: true })
         return {}

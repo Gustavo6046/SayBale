@@ -70,24 +70,25 @@ serve = function(folder, fname, base) {
         return res.send(module.post(req, res));
       });
     }
-    return modules.push(module);
+    modules.push(module);
+    console.log("Also using '" + fname + "' at address '/" + (path.join(base, fname).replace(/\\/g, "/")) + "'...'");
   } else {
     console.log("Using '" + fname + "' at address '/" + (path.join(base, fname).replace(/\\/g, "/")) + "'...'");
-    return app.get('/' + path.join(base, fname).replace(/\\/g, "/"), function(req, res) {
-      req.remoteIP = function() {
-        var o;
-        o = this.get("X-FORWARDED-FOR");
-        if (o != null) {
-          return o;
-        } else {
-          return this.ip;
-        }
-      };
-      console.log("Attending GET request from " + req.ip + " (through URL " + (req.get("referer")) + " and remote IP " + (req.remoteIP()) + " for " + fname);
-      res.setHeader('Content-type', mime.lookup(path.join(base, folder, fname)));
-      return res.send(fs.readFileSync(path.join(base, folder, fname)));
-    });
   }
+  return app.get('/' + path.join(base, fname).replace(/\\/g, "/"), function(req, res) {
+    req.remoteIP = function() {
+      var o;
+      o = this.get("X-FORWARDED-FOR");
+      if (o != null) {
+        return o;
+      } else {
+        return this.ip;
+      }
+    };
+    console.log("Attending GET request from " + req.ip + " (through URL " + (req.get("referer")) + " and remote IP " + (req.remoteIP()) + " for " + fname);
+    res.setHeader('Content-type', mime.lookup(path.join(base, folder, fname)));
+    return res.send(fs.readFileSync(path.join(base, folder, fname)));
+  });
 };
 
 webFolder = function(f, next, base) {
