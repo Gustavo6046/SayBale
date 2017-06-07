@@ -51,8 +51,12 @@ validateSendText = (event) ->
 
 parse = (logs) ->
     for d in logs
-        if d? and d != ""
-            document.getElementById("logs").innerHTML += "</br>#{d}"
+        if d.text? and d.text != ""
+            if d.text.indexOf(nick) != -1 and d.highlight and d.nick != nick
+                new Audio("../highlight.wav").play()
+                d.text = d.text.replace(nick, '<span class="highlight"><span id="nick" /></span>').replace('<span id="nick" />', nick)
+
+            document.getElementById("logs").innerHTML += "</br>#{d.text}"
 
 mainLoop = ->
     scroll = document.getElementById("logs").scrollTop == (document.getElementById("logs").scrollHeight - document.getElementById("logs").offsetHeight)

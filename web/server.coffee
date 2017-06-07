@@ -12,13 +12,13 @@ sbserv.newUser = (ip, nick) ->
     if nick in sbserv.users
         false
 
-    sbserv.relay("--> #{nick} joined")
+    sbserv.relay({ text: "--> #{nick} joined", nick: nick, highlight: false })
     console.log("[CHAT] --> #{nick} joined")
 
     sbserv.users.push(nick)
     sbserv.pendingData[nick] = sbserv.log
-    sbserv.pendingData[nick].push("=== END OF LOGS ===")
-    sbserv.pendingData[nick].push("--- Users: #{sbserv.users.join(" ")}")
+    sbserv.pendingData[nick].push({ text: "=== END OF LOGS ===", nick: nick, highlight: false })
+    sbserv.pendingData[nick].push({ text: "--- Users: #{sbserv.users.join(" ")}", nick: nick, highlight: false })
     sbserv.lastGet[nick] = +new Date()
     sbserv.ips[ip] = nick
 
@@ -31,24 +31,23 @@ sbserv.disconnect = (ip, nick) ->
         return
 
     console.log("[CHAT] <-- #{nick} left")
-    sbserv.relay("<-- #{nick} left")
+    sbserv.relay({ text: "<-- #{nick} left", nick: nick, highlight: false })
 
     sbserv.users = sbserv.users.splice(sbserv.users.indexOf(nick), 1)
     delete sbserv.pendingData[nick]
     delete sbserv.ips[k] if v == nick for k, v of sbserv.ips
-    delete sbserv.lastGet(nick)
+    delete sbserv.lastGet[nick]
 
 sbserv.relay = (text) ->
     if not text?
         return
 
-    text = htmlEntities(text)
+    text.text = htmlEntities(text.text)
 
     sbserv.log.push(text)
 
     for k in Object.keys(sbserv.pendingData)
-        if sbserv.pendingData[k]?
-            sbserv.pendingData[k].push(text)
+        sbserv.pendingData[k].push(text)
 
     return
 
@@ -58,7 +57,7 @@ sbserv.serveAjax = (ip, addr, data) ->
             return {}
 
         console.log("[CHAT] <#{sbserv.ips[ip]}> #{data.text}")
-        sbserv.relay("<#{sbserv.ips[ip]}> #{data.text}")
+        sbserv.relay({ text: "<#{sbserv.ips[ip]}> #{data.text}", nick: sbserv.ips[ip], highlight: true })
         return {}
 
     else if addr == "getchat"

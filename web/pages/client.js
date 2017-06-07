@@ -62,8 +62,12 @@ parse = function(logs) {
   results = [];
   for (i = 0, len = logs.length; i < len; i++) {
     d = logs[i];
-    if ((d != null) && d !== "") {
-      results.push(document.getElementById("logs").innerHTML += "</br>" + d);
+    if ((d.text != null) && d.text !== "") {
+      if (d.text.indexOf(nick) !== -1 && d.highlight && d.nick !== nick) {
+        new Audio("../highlight.wav").play();
+        d.text = d.text.replace(nick, '<span class="highlight"><span id="nick" /></span>').replace('<span id="nick" />', nick);
+      }
+      results.push(document.getElementById("logs").innerHTML += "</br>" + d.text);
     } else {
       results.push(void 0);
     }

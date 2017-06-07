@@ -22,12 +22,24 @@ sbserv.newUser = function(ip, nick) {
   if (indexOf.call(sbserv.users, nick) >= 0) {
     false;
   }
-  sbserv.relay("--> " + nick + " joined");
+  sbserv.relay({
+    text: "--> " + nick + " joined",
+    nick: nick,
+    highlight: false
+  });
   console.log("[CHAT] --> " + nick + " joined");
   sbserv.users.push(nick);
   sbserv.pendingData[nick] = sbserv.log;
-  sbserv.pendingData[nick].push("=== END OF LOGS ===");
-  sbserv.pendingData[nick].push("--- Users: " + (sbserv.users.join(" ")));
+  sbserv.pendingData[nick].push({
+    text: "=== END OF LOGS ===",
+    nick: nick,
+    highlight: false
+  });
+  sbserv.pendingData[nick].push({
+    text: "--- Users: " + (sbserv.users.join(" ")),
+    nick: nick,
+    highlight: false
+  });
   sbserv.lastGet[nick] = +new Date();
   sbserv.ips[ip] = nick;
   sbserv.relay();
@@ -40,7 +52,11 @@ sbserv.disconnect = function(ip, nick) {
     return;
   }
   console.log("[CHAT] <-- " + nick + " left");
-  sbserv.relay("<-- " + nick + " left");
+  sbserv.relay({
+    text: "<-- " + nick + " left",
+    nick: nick,
+    highlight: false
+  });
   sbserv.users = sbserv.users.splice(sbserv.users.indexOf(nick), 1);
   delete sbserv.pendingData[nick];
   if ((function() {
@@ -55,7 +71,7 @@ sbserv.disconnect = function(ip, nick) {
   })()) {
     delete sbserv.ips[k];
   }
-  return delete sbserv.lastGet(nick);
+  return delete sbserv.lastGet[nick];
 };
 
 sbserv.relay = function(text) {
@@ -63,14 +79,12 @@ sbserv.relay = function(text) {
   if (text == null) {
     return;
   }
-  text = htmlEntities(text);
+  text.text = htmlEntities(text.text);
   sbserv.log.push(text);
   ref = Object.keys(sbserv.pendingData);
   for (i = 0, len = ref.length; i < len; i++) {
     k = ref[i];
-    if (sbserv.pendingData[k] != null) {
-      sbserv.pendingData[k].push(text);
-    }
+    sbserv.pendingData[k].push(text);
   }
 };
 
@@ -81,7 +95,11 @@ sbserv.serveAjax = function(ip, addr, data) {
       return {};
     }
     console.log("[CHAT] <" + sbserv.ips[ip] + "> " + data.text);
-    sbserv.relay("<" + sbserv.ips[ip] + "> " + data.text);
+    sbserv.relay({
+      text: "<" + sbserv.ips[ip] + "> " + data.text,
+      nick: sbserv.ips[ip],
+      highlight: true
+    });
     return {};
   } else if (addr === "getchat") {
     sbserv.lastGet[sbserv.ips[ip]] = +new Date();
