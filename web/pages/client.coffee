@@ -54,13 +54,25 @@ parse = (logs) ->
         if d.text? and d.text != ""
             if d.text.indexOf(nick) != -1 and d.highlight and d.nick != nick
                 new Audio("../highlight.wav").play()
-                d.text = d.text.replace(nick, '<span class="highlight"><span id="nick" /></span>').replace('<span id="nick" />', nick)
+                d.text = d.text.replace(new RegExp(nick, "g"), '<span class="highlight"><span id="nick" /></span>').replace('<span id="nick" />', nick)
+
+            console.log("1. " + d.text)
+            d.text = d.text.replace(new RegExp("[a-zA-Z1-9]+\\:\\/\\/[^ \\)]+", "ig"), (x) -> "<turl>#{x}</turl>" )
+            console.log("2. " + d.text)
+            d.text = d.text.replace(new RegExp("img\\(\\<turl\\>[a-zA-Z1-9]+\\:\\/\\/[^\\<]+\\<\\/turl\\>\\)", "ig"), (x) ->
+                url = x.slice(10, x.length - 8)
+                "<a href=\"#{url}\"><img src=\"#{url}\"></a>"
+            )
+            console.log("3. " + d.text)
+            d.text = d.text.replace(new RegExp("\\<turl\\>([^\\<]+)\\<\\/turl\\>", "ig"), (x) ->
+                x.slice(5, x.length - 5)
+            )
+            console.log("4. " + d.text)
 
             document.getElementById("logs").innerHTML += "</br>#{d.text}"
 
 mainLoop = ->
     scroll = document.getElementById("logs").scrollTop == (document.getElementById("logs").scrollHeight - document.getElementById("logs").offsetHeight)
-    console.log(scroll)
 
     $.ajax(
         "../getchat", {

@@ -65,8 +65,23 @@ parse = function(logs) {
     if ((d.text != null) && d.text !== "") {
       if (d.text.indexOf(nick) !== -1 && d.highlight && d.nick !== nick) {
         new Audio("../highlight.wav").play();
-        d.text = d.text.replace(nick, '<span class="highlight"><span id="nick" /></span>').replace('<span id="nick" />', nick);
+        d.text = d.text.replace(new RegExp(nick, "g"), '<span class="highlight"><span id="nick" /></span>').replace('<span id="nick" />', nick);
       }
+      console.log("1. " + d.text);
+      d.text = d.text.replace(new RegExp("[a-zA-Z1-9]+\\:\\/\\/[^ \\)]+", "ig"), function(x) {
+        return "<turl>" + x + "</turl>";
+      });
+      console.log("2. " + d.text);
+      d.text = d.text.replace(new RegExp("img\\(\\<turl\\>[a-zA-Z1-9]+\\:\\/\\/[^\\<]+\\<\\/turl\\>\\)", "ig"), function(x) {
+        var url;
+        url = x.slice(10, x.length - 8);
+        return "<a href=\"" + url + "\"><img src=\"" + url + "\"></a>";
+      });
+      console.log("3. " + d.text);
+      d.text = d.text.replace(new RegExp("\\<turl\\>([^\\<]+)\\<\\/turl\\>", "ig"), function(x) {
+        return x.slice(5, x.length - 5);
+      });
+      console.log("4. " + d.text);
       results.push(document.getElementById("logs").innerHTML += "</br>" + d.text);
     } else {
       results.push(void 0);
@@ -78,7 +93,6 @@ parse = function(logs) {
 mainLoop = function() {
   var scroll;
   scroll = document.getElementById("logs").scrollTop === (document.getElementById("logs").scrollHeight - document.getElementById("logs").offsetHeight);
-  console.log(scroll);
   return $.ajax("../getchat", {
     type: "POST",
     data: JSON.stringify({
