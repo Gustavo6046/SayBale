@@ -28,7 +28,7 @@ sendText = ->
         return false
 
     inputBox = document.getElementById("textArea")
-    data = inputBox.valuex
+    data = inputBox.value
 
     if data == ""
         return false
@@ -55,6 +55,9 @@ parse = (logs) ->
             document.getElementById("logs").innerHTML += "</br>#{d}"
 
 mainLoop = ->
+    scroll = document.getElementById("logs").scrollTop == (document.getElementById("logs").scrollHeight - document.getElementById("logs").offsetHeight)
+    console.log(scroll)
+
     $.ajax(
         "../getchat", {
             type: "POST"
@@ -70,6 +73,8 @@ mainLoop = ->
                 
                 else
                     disconnect()
+
+                document.getElementById("logs").scrollTop = (document.getElementById("logs").scrollHeight - document.getElementById("logs").offsetHeight) if scroll
 
             contentType: 'application/json'
         }

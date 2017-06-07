@@ -35,8 +35,8 @@ sbserv.disconnect = (ip, nick) ->
 
     sbserv.users = sbserv.users.splice(sbserv.users.indexOf(nick), 1)
     delete sbserv.pendingData[nick]
-    
     delete sbserv.ips[k] if v == nick for k, v of sbserv.ips
+    delete sbserv.lastGet(nick)
 
 sbserv.relay = (text) ->
     if not text?

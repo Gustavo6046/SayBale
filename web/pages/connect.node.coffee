@@ -1,7 +1,7 @@
 sbserv = require("../server.js").sbserv
 
 post = (req, res) ->
-    if sbserv.newUser(req.get("X-FORWARDED-FOR"), req.body.nick)
+    if sbserv.newUser(req.remoteIP(), req.body.nick)
         console.log("JSON request body: " + JSON.stringify(req.body))
 
         {continue: true}

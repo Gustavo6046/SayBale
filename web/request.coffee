@@ -32,7 +32,16 @@ serve = (folder, fname, base) ->
 
         if module.get?
             app.get('/' + module.address, (req, res) ->
-                console.log("Attending GET request from #{req.ip} (through URL #{req.get("referer")} and remote IP #{req.get("X-FORWARDED-FOR")}) for #{fname}")
+                req.remoteIP = ->
+                    o = @get("X-FORWARDED-FOR")
+
+                    if o?
+                        o
+
+                    else
+                        @ip
+
+                console.log("Attending GET request from #{req.ip} (through URL #{req.get("referer")} and remote IP #{req.remoteIP()}) for #{fname}")
 
                 res.setHeader('Content-type', module.mimetype)
                 res.send(module.get(req, res))
@@ -40,7 +49,16 @@ serve = (folder, fname, base) ->
 
         if module.post?
             app.post('/' + module.address, (req, res) ->
-                console.log("Attending POST request from #{req.ip} (through URL #{req.get("referer")} and remote IP #{req.get("X-FORWARDED-FOR")}) for #{fname}")
+                req.remoteIP = ->
+                    o = @get("X-FORWARDED-FOR")
+
+                    if o?
+                        o
+
+                    else
+                        @ip
+
+                console.log("Attending POST request from #{req.ip} (through URL #{req.get("referer")} and remote IP #{req.remoteIP()}) for #{fname}")
 
                 res.setHeader('Content-type', module.mimetype)
                 res.send(module.post(req, res))
@@ -52,7 +70,16 @@ serve = (folder, fname, base) ->
         console.log("Using '#{fname}' at address '/#{path.join(base, fname).replace(/\\/g,"/")}'...'")
 
         app.get('/' + path.join(base, fname).replace(/\\/g,"/"), (req, res) ->
-            console.log("Attending GET request from #{req.ip} (through URL #{req.get("referer")} and remote IP #{req.get("X-FORWARDED-FOR")}) for #{fname}")
+            req.remoteIP = ->
+                o = @get("X-FORWARDED-FOR")
+
+                if o?
+                    o
+
+                else
+                    @ip
+
+            console.log("Attending GET request from #{req.ip} (through URL #{req.get("referer")} and remote IP #{req.remoteIP()} for #{fname}")
 
             res.setHeader('Content-type', mime.lookup(path.join(base, folder, fname)))
             res.send(fs.readFileSync(path.join(base, folder, fname)))

@@ -9,8 +9,8 @@ post = function(req, res) {
   ref = sbserv.ips;
   for (a in ref) {
     _ = ref[a];
-    if (req.get("X-FORWARDED-FOR") === a) {
-      sbserv.serveAjax(req.get("X-FORWARDED-FOR"), "sendchat", req.body);
+    if (req.remoteIP() === a) {
+      sbserv.serveAjax(req.remoteIP(), "sendchat", req.body);
     }
   }
   return {};

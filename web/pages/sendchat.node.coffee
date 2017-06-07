@@ -4,8 +4,8 @@ post = (req, res) ->
     console.log(JSON.stringify(req.body))
 
     for a, _ of sbserv.ips
-        if req.get("X-FORWARDED-FOR") == a
-            sbserv.serveAjax(req.get("X-FORWARDED-FOR"), "sendchat", req.body)
+        if req.remoteIP() == a
+            sbserv.serveAjax(req.remoteIP(), "sendchat", req.body)
         
     {}
 

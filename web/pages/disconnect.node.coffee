@@ -2,8 +2,8 @@ sbserv = require("../server.js").sbserv
 
 post = (req, res) ->
     for a, _ of sbserv.ips
-        if req.get("X-FORWARDED-FOR") == a
-            sbserv.disconnect(req.get("X-FORWARDED-FOR"), sbserv.ips[req.get("X-FORWARDED-FOR")])
+        if req.remoteIP() == a
+            sbserv.disconnect(req.remoteIP(), sbserv.ips[req.remoteIP()])
         
     {}
 

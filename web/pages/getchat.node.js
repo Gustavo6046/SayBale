@@ -8,8 +8,8 @@ post = function(req, res) {
   ref = sbserv.ips;
   for (a in ref) {
     _ = ref[a];
-    if (req.get("X-FORWARDED-FOR") === a) {
-      r = sbserv.serveAjax(req.get("X-FORWARDED-FOR"), "getchat", req.body);
+    if (req.remoteIP() === a) {
+      r = sbserv.serveAjax(req.remoteIP(), "getchat", req.body);
       r["continue"] = true;
       return r;
     }

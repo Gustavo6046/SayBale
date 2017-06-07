@@ -2,8 +2,8 @@ sbserv = require("../server.js").sbserv
 
 post = (req, res) ->
     for a, _ of sbserv.ips
-        if req.get("X-FORWARDED-FOR") == a
-            r = sbserv.serveAjax(req.get("X-FORWARDED-FOR"), "getchat", req.body)
+        if req.remoteIP() == a
+            r = sbserv.serveAjax(req.remoteIP(), "getchat", req.body)
             r.continue = true
             return r
             

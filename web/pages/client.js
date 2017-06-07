@@ -72,6 +72,9 @@ parse = function(logs) {
 };
 
 mainLoop = function() {
+  var scroll;
+  scroll = document.getElementById("logs").scrollTop === (document.getElementById("logs").scrollHeight - document.getElementById("logs").offsetHeight);
+  console.log(scroll);
   return $.ajax("../getchat", {
     type: "POST",
     data: JSON.stringify({
@@ -81,12 +84,15 @@ mainLoop = function() {
       if (data["continue"] != null) {
         if (data.logs != null) {
           parse(data.logs);
-          return window.setTimeout(mainLoop, data.next * 1000);
+          window.setTimeout(mainLoop, data.next * 1000);
         } else {
-          return window.setTimeout(mainLoop, 5000);
+          window.setTimeout(mainLoop, 5000);
         }
       } else {
-        return disconnect();
+        disconnect();
+      }
+      if (scroll) {
+        return document.getElementById("logs").scrollTop = document.getElementById("logs").scrollHeight - document.getElementById("logs").offsetHeight;
       }
     },
     contentType: 'application/json'
