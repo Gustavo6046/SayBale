@@ -1,5 +1,17 @@
 nicked = false
 nick = null
+sendHistory = []
+historyPos = -1
+nonHistory = ""
+cycle = 0
+lastTab = ""
+
+has = (a, i) ->
+    for x in a
+        if x == i
+            return true
+
+    return false
 
 connect = (again) ->
     if not again?
@@ -37,6 +49,10 @@ sendText = ->
 
     if data == ""
         return false
+
+    historyPos = -1
+
+    sendHistory.push(data)
 
     inputBox.value = ""
 
@@ -234,7 +250,91 @@ show = (text) ->
     parse([{ text: text, highlight: false, nick: "__noNick__" }])
 
 validateSendText = (event) ->
-    sendText() if event.keyCode == 13
+    return sendText() if event.keyCode == 13 and not event.ctrlKey
+
+    if event.keyCode == 13 and  event.ctrlKey
+        $.ajax(
+            "../userlist", {
+                type: "POST"
+                data: JSON.stringify()
+                success: (data, status, req) ->
+                    inputBox = document.getElementById("textArea")
+                    word = inputBox.value.split(" ")[inputBox.value.split(" ").length - 1]
+
+                    users = data.users
+                    
+                    if word == "" or has(word, users) and lastTab == ""
+                        candidates = users
+
+                        if candidates.length == 0
+                            return
+
+                        cycle++
+
+                        if cycle >= candidates.length
+                                cycle = 0
+
+                    else
+                        candidates = []
+
+                        for x in users
+                            if x.toLowerCase().startsWith(word.toLowerCase())
+                                candidates.push(x)
+
+                        if candidates.length == 0
+                            return
+
+                        if has(candidates, word)
+                            word = lastTab
+
+                        if lastTab == word and lastTab != ""
+                            cycle++
+
+                            if cycle >= candidates.length
+                                cycle = 0
+
+                        else
+                            cycle = 0
+
+                            if lastTab == ""
+                                lastTab = word
+
+                        if not has(candidates, word)
+                            lastTab = word
+
+                    if inputBox.value.split(" ").length > 1
+                        inputBox.value = "#{inputBox.value.split(" ").slice(0, inputBox.value.split(" ").length - 1)} #{candidates[cycle]},"
+
+                    else
+                        inputBox.value = "#{candidates[cycle]}: "
+
+                contentType: "application/json"
+            }
+        )
+
+    else
+        inputBox = document.getElementById("textArea")
+
+        if historyPos == -1
+            nonHistory = inputBox.value
+
+        if event.keyCode == 38
+            historyPos++
+
+            if historyPos >= sendHistory.length
+                historyPos = sendHistory.length - 1
+
+        if event.keyCode == 40
+            historyPos--
+            
+            if historyPos < -1
+                historyPos = -1
+
+        if historyPos > -1
+            inputBox.value = sendHistory[sendHistory.length - historyPos - 1]
+
+        else
+            inputBox.value = nonHistory 
 
 parse = (logs) ->
     for d in logs
@@ -281,7 +381,11 @@ mainLoop = ->
                     disconnect()
                     show("You have disconnected.")
 
-                document.getElementById("logs").scrollTop = (document.getElementById("logs").scrollHeight - document.getElementById("logs").offsetHeight) if scroll
+                window.setTimeout(->
+                    if scroll
+                        document.getElementById("logs").scrollTop = (document.getElementById("logs").scrollHeight - document.getElementById("logs").offsetHeight)
+
+                data.next * 1000)
 
             contentType: 'application/json'
         }

@@ -18,12 +18,14 @@ has = function(arr, item) {
 };
 
 remove = function(arr, item) {
-  var i;
+  var a2, i;
   i = 0;
+  console.log(arr);
   if (has(arr, item)) {
-    arr = arr.splice(arr.indexOf(item), 1);
-    if (has(arr, item)) {
-      return remove(arr, item);
+    a2 = arr;
+    a2.splice(arr.indexOf(item), 1);
+    if (has(a2, item)) {
+      return remove(a2, item);
     }
   }
   return arr;
