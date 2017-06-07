@@ -6,6 +6,7 @@
         <meta charset="utf-8" />
 
         <script type="text/javascript" src="jquery-3.1.1.min.js"></script>
+        <script type="text/javascript" src="js-sha256.min.js"></script>
 
         <style>
             html, body {
@@ -40,15 +41,27 @@
             }
 
             #inputs {
-                flex: none;
+                margin: 2px
             }
 
-            #textArea {
+            .inputRow {
+                flex: none;
+                display: flex;
+            }
+
+            .tinput_medium {
+                flex: none;
+                width: 120px;
+            }
+
+            .tinput {
+                flex: auto;
                 width: 100%;
             }
 
-            #sendButton {
-                width: 120px;
+            button {
+                flex: none;
+                width: 85px;
             }
 
             .highlight {
@@ -64,8 +77,16 @@
             <div id="logs"> </div>
 
             <div id="inputs">
-                <input type="text" id="textArea" onkeypress="validateSendText(event)" />
-                <button type="button" id="sendButton" onclick="sendText()">Send!</button>
+                <div class="inputRow">
+                    <input type="text" id="textArea" class="tinput" onkeypress="validateSendText(event)" />
+                    <button type="button" onclick="sendText()">Send</button>
+                </div>
+
+                <div class="inputRow">
+                    <input type="text" id="commandName" class="tinput_medium" />
+                    <input type="text" id="commandParms" class="tinput" />
+                    <button type="button" onclick="command()">Command</button>
+                </div>
             </div>
         </div>
     </body>

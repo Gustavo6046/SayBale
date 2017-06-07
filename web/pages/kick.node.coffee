@@ -5,12 +5,12 @@ post = (req, res) ->
 
     for a, _ of sbserv.ips
         if req.remoteIP() == a
-            return sbserv.serveAjax(req.remoteIP(), "sendchat", req.body)
+            return sbserv.serveAjax(req.remoteIP(), "kick", req.body)
         
     {}
 
 module.exports = {
     post: post
-    address: "sendchat"
+    address: "kick"
     mimetype: "application/json"
 }

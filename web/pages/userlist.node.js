@@ -10,7 +10,7 @@ post = function(req, res) {
   for (a in ref) {
     _ = ref[a];
     if (req.remoteIP() === a) {
-      return sbserv.serveAjax(req.remoteIP(), "sendchat", req.body);
+      return sbserv.serveAjax(req.remoteIP(), "userlist", req.body);
     }
   }
   return {};
@@ -18,6 +18,6 @@ post = function(req, res) {
 
 module.exports = {
   post: post,
-  address: "sendchat",
+  address: "userlist",
   mimetype: "application/json"
 };

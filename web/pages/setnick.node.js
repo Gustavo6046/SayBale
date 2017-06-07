@@ -10,14 +10,16 @@ post = function(req, res) {
   for (a in ref) {
     _ = ref[a];
     if (req.remoteIP() === a) {
-      return sbserv.serveAjax(req.remoteIP(), "sendchat", req.body);
+      return sbserv.serveAjax(req.remoteIP(), "setnick", req.body);
     }
   }
-  return {};
+  return {
+    "continue": false
+  };
 };
 
 module.exports = {
   post: post,
-  address: "sendchat",
+  address: "setnick",
   mimetype: "application/json"
 };
