@@ -17,6 +17,10 @@ modules = [];
 
 app.use(bodyParser.json());
 
+app.use(bodyParser.urlencoded({
+  extended: false
+}));
+
 startsWith = function(s, sub) {
   return s.slice(0, sub.length) === sub;
 };
@@ -40,6 +44,7 @@ serve = function(folder, fname, base) {
     console.log("Using '" + fname + "' at address '/" + module.address + "'");
     if (module.get != null) {
       app.get('/' + module.address, function(req, res) {
+        var r;
         req.remoteIP = function() {
           var o;
           o = this.get("X-FORWARDED-FOR");
@@ -50,12 +55,28 @@ serve = function(folder, fname, base) {
           }
         };
         console.log("Attending GET request from " + req.ip + " (through URL " + (req.get("referer")) + " and remote IP " + (req.remoteIP()) + ") for " + fname);
-        res.setHeader('Content-type', module.mimetype);
-        return res.send(module.get(req, res));
+        r = module.get(req, res);
+        if ((r == null) || (r.mimetype == null)) {
+          if (module.mimetype != null) {
+            res.setHeader('Content-Type', module.mimetype);
+          } else {
+            res.setHeader('Content-Type', 'text/html');
+          }
+        } else {
+          res.setHeader('Content-Type', r.mimetype);
+        }
+        if ((r != null) && (r.data != null)) {
+          return res.send(r.data);
+        } else if (r != null) {
+          return res.send(r);
+        } else {
+          return res.send("");
+        }
       });
     }
     if (module.post != null) {
       app.post('/' + module.address, function(req, res) {
+        var r;
         req.remoteIP = function() {
           var o;
           o = this.get("X-FORWARDED-FOR");
@@ -66,8 +87,23 @@ serve = function(folder, fname, base) {
           }
         };
         console.log("Attending POST request from " + req.ip + " (through URL " + (req.get("referer")) + " and remote IP " + (req.remoteIP()) + ") for " + fname);
-        res.setHeader('Content-type', module.mimetype);
-        return res.send(module.post(req, res));
+        r = module.post(req, res);
+        if ((r == null) || (r.mimetype == null)) {
+          if (module.mimetype != null) {
+            res.setHeader('Content-Type', module.mimetype);
+          } else {
+            res.setHeader('Content-Type', 'text/html');
+          }
+        } else {
+          res.setHeader('Content-Type', r.mimetype);
+        }
+        if ((r != null) && (r.data != null)) {
+          return res.send(r.data);
+        } else if (r != null) {
+          return res.send(r);
+        } else {
+          return res.send("");
+        }
       });
     }
     modules.push(module);
@@ -86,7 +122,7 @@ serve = function(folder, fname, base) {
       }
     };
     console.log("Attending GET request from " + req.ip + " (through URL " + (req.get("referer")) + " and remote IP " + (req.remoteIP()) + " for " + fname);
-    res.setHeader('Content-type', mime.lookup(path.join(base, folder, fname)));
+    res.setHeader('Content-Type', mime.lookup(path.join(base, folder, fname)));
     return res.send(fs.readFileSync(path.join(base, folder, fname)));
   });
 };

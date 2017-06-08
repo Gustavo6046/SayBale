@@ -99,7 +99,11 @@ sbserv.relay = (text) ->
     return
 
 sbserv.serveAjax = (ip, addr, data) ->
-    if addr == "sendchat"
+    if addr == "disconnect"
+        if not data.reason?
+            data.reason = null
+
+    else if addr == "sendchat"
         if data.text == ""
             return {}
 

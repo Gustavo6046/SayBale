@@ -7,7 +7,7 @@ mime = require('mime')
 app = express()
 modules = []
 app.use(bodyParser.json())
-
+app.use(bodyParser.urlencoded({ extended: false }))
 
 startsWith = (s, sub) ->
     return s.slice(0, sub.length) == sub
@@ -43,8 +43,26 @@ serve = (folder, fname, base) ->
 
                 console.log("Attending GET request from #{req.ip} (through URL #{req.get("referer")} and remote IP #{req.remoteIP()}) for #{fname}")
 
-                res.setHeader('Content-type', module.mimetype)
-                res.send(module.get(req, res))
+                r = module.get(req, res)
+
+                if not r? or not r.mimetype?
+                    if module.mimetype?
+                        res.setHeader('Content-Type', module.mimetype)
+
+                    else
+                        res.setHeader('Content-Type', 'text/html')
+
+                else
+                    res.setHeader('Content-Type', r.mimetype)
+                
+                if r? and r.data?
+                    res.send(r.data)
+
+                else if r?
+                    res.send(r)
+
+                else
+                    res.send("")
             )
 
         if module.post?
@@ -60,8 +78,26 @@ serve = (folder, fname, base) ->
 
                 console.log("Attending POST request from #{req.ip} (through URL #{req.get("referer")} and remote IP #{req.remoteIP()}) for #{fname}")
 
-                res.setHeader('Content-type', module.mimetype)
-                res.send(module.post(req, res))
+                r = module.post(req, res)
+
+                if not r? or not r.mimetype?
+                    if module.mimetype?
+                        res.setHeader('Content-Type', module.mimetype)
+
+                    else
+                        res.setHeader('Content-Type', 'text/html')
+
+                else
+                    res.setHeader('Content-Type', r.mimetype)
+                
+                if r? and r.data?
+                    res.send(r.data)
+
+                else if r?
+                    res.send(r)
+
+                else
+                    res.send("")
             )
 
         modules.push(module)
@@ -84,7 +120,7 @@ serve = (folder, fname, base) ->
 
         console.log("Attending GET request from #{req.ip} (through URL #{req.get("referer")} and remote IP #{req.remoteIP()} for #{fname}")
 
-        res.setHeader('Content-type', mime.lookup(path.join(base, folder, fname)))
+        res.setHeader('Content-Type', mime.lookup(path.join(base, folder, fname)))
         res.send(fs.readFileSync(path.join(base, folder, fname)))
     )
 

@@ -174,7 +174,11 @@ sbserv.relay = function(text) {
 
 sbserv.serveAjax = function(ip, addr, data) {
   var a, ips, j, k, ks, l, len, len1, logs, n, nick, other, ref, ref1, ref2, ref3, succ, v, x;
-  if (addr === "sendchat") {
+  if (addr === "disconnect") {
+    if (data.reason == null) {
+      return data.reason = null;
+    }
+  } else if (addr === "sendchat") {
     if (data.text === "") {
       return {};
     }

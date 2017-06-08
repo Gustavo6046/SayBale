@@ -9,7 +9,7 @@ post = function(req, res) {
   for (a in ref) {
     _ = ref[a];
     if (req.remoteIP() === a) {
-      sbserv.disconnect(req.remoteIP(), sbserv.ips[req.remoteIP()]);
+      sbserv.serveAjax(req.remoteIP(), "disconnect", req.body);
     }
   }
   return {};
