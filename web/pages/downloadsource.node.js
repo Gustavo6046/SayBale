@@ -13,6 +13,12 @@ post = function(req, res) {
       mimetype: "text/plain"
     };
   }
+  if (req.body.path.indexOf(":/") === 1 || req.body.path.startsWith("/")) {
+    return {
+      data: "HA HA HA! Nice try haxor.",
+      mimetype: "text/plain"
+    };
+  }
   ref = JSON.parse(fs.readFileSync("blacklist.json")).blacklist;
   for (i = 0, len = ref.length; i < len; i++) {
     bl = ref[i];

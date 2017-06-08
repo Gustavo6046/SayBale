@@ -52,6 +52,10 @@ post = (req, res) ->
             res.send("Permission denied to walk through parent dirs from anywhere for<br/>security reasons..")
             return
 
+        if req.body.pos.indexOf(":/") == 1 or req.body.pos.startsWith("/")
+            res.send("Permission denied to walk from root dirs for<br/>security reasons..")
+            return
+
         html = "Listing of current source code at '#{req.body.pos}'"
 
         html += "<br\> <span onclick=\"access(&quot;#{path.join(req.body.pos, '..')}&quot;)\" class=\"fakelink\">..</span> (directory)"

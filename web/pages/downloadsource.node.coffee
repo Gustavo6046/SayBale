@@ -6,6 +6,9 @@ post = (req, res) ->
     if ".." in req.body.path
         return { data: "HA HA HA! Nice try haxor.", mimetype: "text/plain" }
 
+    if req.body.path.indexOf(":/") == 1 or req.body.path.startsWith("/")
+        return { data: "HA HA HA! Nice try haxor.", mimetype: "text/plain" }
+
     for bl in JSON.parse(fs.readFileSync("blacklist.json")).blacklist
         if RegExp(bl, "ig").test(req.body.path)
             return { data: "HA HA HA! Nice try haxor.", mimetype: "text/plain" }
