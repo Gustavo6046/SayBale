@@ -17,7 +17,7 @@ post = (req, res) ->
         return { data: fs.readFileSync(req.body.path), mimetype: "application/octet-stream" }
 
     catch err
-        reurn { data: "Error retrieving file: " + err, mimetype: "text/plain" }
+        return { data: "Error retrieving file: " + err, mimetype: "text/plain" }
 
 module.exports = {
     post: post

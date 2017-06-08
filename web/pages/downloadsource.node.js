@@ -36,10 +36,10 @@ post = function(req, res) {
     };
   } catch (error) {
     err = error;
-    return reurn({
+    return {
       data: "Error retrieving file: " + err,
       mimetype: "text/plain"
-    });
+    };
   }
 };
 
