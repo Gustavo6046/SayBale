@@ -99,6 +99,7 @@ changeNick = ->
     true
 
 cmdNames = ["msg", "help", "nick", "adminauth", "kick", "kickban", "unban", "getips", "userlist"]
+codes = ["color<hex color code>(text)", "bg<hex color code>(text)", "spoiler(text)", "img(url)"]
 
 command = ->
     commandName = document.getElementById("commandName").value
@@ -126,6 +127,9 @@ command = ->
     
     else if commandName == "help"
         show("Commands available: #{cmdNames.join(' ')}")
+
+    else if commandName == "codes"
+        show("Codes available: #{codes.join(' ')}")
         
     else if commandName == "adminauth"
         pwBox = document.getElementById("commandParms")
@@ -342,6 +346,7 @@ parse = (logs) ->
             if new RegExp("\\&lt;[^>]*\\&gt;", "i").test(d.text)
                 pt = new RegExp("\\&lt;[^>]*\\&gt;", "i").exec(d.text)[0]
                 _l = pt.length + 1
+
                 d.text = d.text.slice(_l, d.text.length)
                 d.text = d.text.replace(new RegExp("[a-zA-Z1-9]+\\:\\/\\/[^ \\)]+", "ig"), (x) -> "<turl>#{x}</turl>" )
                 d.text = d.text.replace(new RegExp("img\\(\\<turl\\>[a-zA-Z1-9]+\\:\\/\\/[^\\<]+\\<\\/turl\\>\\)", "ig"), (x) ->
@@ -351,6 +356,12 @@ parse = (logs) ->
                 d.text = d.text.replace(new RegExp("\\<turl\\>([^\\<]+)\\<\\/turl\\>", "ig"), (x) ->
                     "<a href=\"#{x.slice(6, x.length - 7)}\">#{x.slice(6, x.length - 7)}</a>"
                 )
+                d.text = d.text.replace(new RegExp("spoiler\\(([^\\)]+)\\)"), (x) ->
+                    newSpoiler(x.slice(8, x.length - 1))
+                )
+                d.text = d.text.replace(new RegExp("color([\\da-f]{6})\\(([^\\)]+)\\)"), "<span style=\"color: #$1;\">$2</span>")
+                d.text = d.text.replace(new RegExp("bg([\\da-f]{6})\\(([^\\)]+)\\)"), "<span style=\"background-color: #$1;\">$2</span>")
+
                 d.text = "#{pt} #{d.text}"
 
             if d.text.indexOf(nick) != -1 and d.highlight and d.nick != nick
@@ -391,6 +402,27 @@ mainLoop = ->
         }
     )
 
+spoilerNums = 0
+
+newSpoiler = (text, id) ->
+    if not id?
+        id = "spoiler#{spoilerNums}"
+
+    spoilerNums++
+
+    "<span id=\"#{id}\" onclick=\"toggleSpoiler(&quot;#{id}&quot;, &quot;#{text}&quot;)\"><span class=\"hiddenSpoiler\">+</div></span>"
+
+toggleSpoiler = (id, text) ->
+    el = document.getElementById(id)
+
+    if el.childNodes[0].className == "hiddenSpoiler"
+        el.childNodes[0].className = "shownSpoiler"
+        el.childNodes[0].innerHTML = "> #{text}"
+
+    else
+        el.childNodes[0].className = "hiddenSpoiler"
+        el.childNodes[0].innerHTML = "+"
+
 disconnect = ->
     document.getElementById("inputs").parentNode.removeChild(document.getElementById("inputs"))
 
@@ -410,3 +442,5 @@ window.onload = ->
 
     nicked = true
     window.setTimeout(mainLoop, 1000)
+
+$('window').on('beforeunload', disconnect)
