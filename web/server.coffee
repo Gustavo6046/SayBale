@@ -33,7 +33,7 @@ sbserv.bans = []
 sbserv.adminKey = sha256.update(fs.readFileSync("adminpass.txt"), "utf8").digest("hex")
 
 htmlEntities = (str) ->
-    String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace /"/g, '&quot;'
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 
 sbserv.checkAdmin = (ip) ->
     for a in sbserv.admins

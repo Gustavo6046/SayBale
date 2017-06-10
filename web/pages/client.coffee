@@ -5,6 +5,8 @@ historyPos = -1
 nonHistory = ""
 cycle = 0
 lastTab = ""
+origTitle = document.title
+selected = true
 
 has = (a, i) ->
     for x in a
@@ -99,7 +101,7 @@ changeNick = ->
     true
 
 cmdNames = ["msg", "help", "nick", "adminauth", "kick", "kickban", "unban", "getips", "userlist"]
-codes = ["color<hex color code>(text)", "bg<hex color code>(text)", "spoiler(text)", "img(url)"]
+codes = ["color&lt;hex&gt;(stuff)", "bg&lt;hex&gt;(stuff)", "spoiler(stuff)", "img(url)", "timer&lt;seconds&gt;(stuff)", "ftmr&lt;seconds&gt;(stuff)"]
 
 command = ->
     commandName = document.getElementById("commandName").value
@@ -126,10 +128,10 @@ command = ->
         changeNick()
     
     else if commandName == "help"
-        show("Commands available: #{cmdNames.join(' ')}")
+        show("*** Commands available: #{cmdNames.join(' ')}")
 
     else if commandName == "codes"
-        show("Codes available: #{codes.join(' ')}")
+        show("*** Codes available: #{codes.join(' ')}")
         
     else if commandName == "adminauth"
         pwBox = document.getElementById("commandParms")
@@ -340,10 +342,81 @@ validateSendText = (event) ->
         else
             inputBox.value = nonHistory 
 
+parseParen = (txt, stPos) ->
+    if not (pos = stPos)?
+        pos = 0
+
+    res = txt.slice(pos, txt.length)
+
+    numParens = 0
+    inside = false
+    subres = ""
+    preres = ""
+
+    while pos < txt.length
+        ch = txt[pos]
+        res += ch
+
+        if ch == ")"
+            if numParens == 1
+                return { full: res, content: subres, prefix: preres }
+
+            numParens--
+
+        if inside and (ch != "(" or numParens > 0) and (ch != ")" or numParens > 0)
+            subres += ch
+
+        if ch == "("
+            inside = true
+            numParens++
+
+        if not inside
+            preres += ch
+
+        pos++
+
+    return {full: res, content: subres, prefix: preres}
+
+parseMini = (txt) ->
+    txt = txt.replace(new RegExp("[a-zA-Z1-9]+\\:\\/\\/[^ \\)]+", "ig"), (x) -> "<turl>#{x}</turl>" )
+    txt = txt.replace(new RegExp("img\\(\\<turl\\>[a-zA-Z1-9]+\\:\\/\\/[^\\<]+\\<\\/turl\\>\\)", "ig"), (x) ->
+        url = x.slice(10, x.length - 8)
+        "<a href=\"#{url}\"><img src=\"#{url}\"></a>"
+    )
+    txt = txt.replace(new RegExp("\\<turl\\>([^\\<]+)\\<\\/turl\\>", "ig"), (x) ->
+        "<a href=\"#{x.slice(6, x.length - 7)}\">#{x.slice(6, x.length - 7)}</a>"
+    )
+    txt = txt.replace(new RegExp("spoiler\\((.*)"), (x) ->
+        x = parseParen(x)
+        newSpoiler(parseMini(x.content))
+    )
+    txt = txt.replace(new RegExp("color([\\da-fA-F]{6})\\((.*)"), (x) ->
+        x = parseParen(x)
+        "<span style=\"color: #{'#' + x.prefix.slice(5)};\">#{parseMini(x.content)}</span>"
+    )
+    txt = txt.replace(new RegExp("bg([\\da-fA-F]{6})\\((.*)"), (x) ->
+        x = parseParen(x)
+        "<span style=\"background-color: ##{x.prefix.slice(2)};\">#{parseMini(x.content)}</span>"
+    )
+    txt = txt.replace(new RegExp("timer(\\d+)\\((.*)"), (a) ->
+        a = parseParen(a)
+        newTimer(parseMini(a.content), a.prefix.slice(5))
+    )
+    txt.replace(new RegExp("ftmr(\\d+)\\((.*)"), (a) ->
+        a = parseParen(a)
+        newfTimer(parseMini(a.content), a.prefix.slice(4))
+    )
+
+diffLog = (a, func) ->
+    console.log("||| #{a} -> #{func(a)} |||")
+
 parse = (logs) ->
     for d in logs
         if d.text? and d.text != ""
-            if new RegExp("\\&lt;[^>]*\\&gt;", "i").test(d.text)
+            if not selected
+                document.title = "#{origTitle} [activity]"
+
+            if new RegExp("^\\&lt;[^>]*\\&gt;", "i").test(d.text)
                 pt = new RegExp("\\&lt;[^>]*\\&gt;", "i").exec(d.text)[0]
                 _l = pt.length + 1
 
@@ -356,11 +429,26 @@ parse = (logs) ->
                 d.text = d.text.replace(new RegExp("\\<turl\\>([^\\<]+)\\<\\/turl\\>", "ig"), (x) ->
                     "<a href=\"#{x.slice(6, x.length - 7)}\">#{x.slice(6, x.length - 7)}</a>"
                 )
-                d.text = d.text.replace(new RegExp("spoiler\\(([^\\)]+)\\)"), (x) ->
-                    newSpoiler(x.slice(8, x.length - 1))
+                d.text = d.text.replace(new RegExp("spoiler\\((.*)"), (x) ->
+                    x = parseParen(x)
+                    newSpoiler(parseMini(x.content))
                 )
-                d.text = d.text.replace(new RegExp("color([\\da-f]{6})\\(([^\\)]+)\\)"), "<span style=\"color: #$1;\">$2</span>")
-                d.text = d.text.replace(new RegExp("bg([\\da-f]{6})\\(([^\\)]+)\\)"), "<span style=\"background-color: #$1;\">$2</span>")
+                d.text = d.text.replace(new RegExp("color([\\da-fA-F]{6})\\((.*)"), (x) ->
+                    x = parseParen(x)
+                    "<span style=\"color: #{x.prefix.slice(5)};\">#{parseMini(x.content)}</span>"
+                )
+                d.text = d.text.replace(new RegExp("bg([\\da-fA-F]{6})\\((.*)"), (x) ->
+                    x = parseParen(x)
+                    "<span style=\"background-color: ##{x.prefix.slice(2)};\">#{parseMini(x.content)}</span>"
+                )
+                d.text = d.text.replace(new RegExp("timer(\\d+)\\((.*)"), (a) ->
+                    a = parseParen(a)
+                    newTimer(parseMini(a.content), +a.prefix.slice(5))
+                )
+                d.text = d.text.replace(new RegExp("ftmr(\\d+)\\((.*)"), (a) ->
+                    a = parseParen(a)
+                    newfTimer(parseMini(a.content), a.prefix.slice(4))
+                )
 
                 d.text = "#{pt} #{d.text}"
 
@@ -403,14 +491,88 @@ mainLoop = ->
     )
 
 spoilerNums = 0
+timerNums = 0
+
+spoilerContent = {}
+timerContent = {}
+
+countTimer = (text, id, count) ->
+    el = document.getElementById(id)
+
+    if not el?
+        return setTimeout((-> countTimer(text, id, count - 1)), 1000)
+
+    count = +count
+
+    if count <= 0
+        el.innerHTML = "<span class=\"shownSpoiler\">#{text}</span>"
+
+    else
+        el.innerHTML = "<span id=\"#{id}\" class=\"hiddenSpoiler\" onload=\"setTimeout((function(){ countTimer(&quot;#{text}&quot;, &quot;#{id}&quot;, #{count}}, 1000 )\">#{count}</span>"
+        
+        setTimeout((-> countTimer(text, id, count - 1)), 1000)
+
+newTimer = (text, count, id) ->
+    if not id?
+        id = "timer#{timerNums}"
+
+    if count < 1
+        count = 1
+
+    timerNums++
+    timerContent[id] = text
+
+    setTimeout((-> countTimer(text, id, count - 1)), 1000)
+    "<span id=\"#{id}\" class=\"hiddenSpoiler\" onload=\"setTimeout(function(){ countTimer(timerContent[&quot;#{id}&quot;], &quot;#{id}&quot;, #{count} }, 1000)\">#{count}</span>"
+
+intervals = {}
+
+countfTimer = (text, id, targ) ->
+    el = document.getElementById(id)
+
+    count = targ - (+new Date() / 1000)
+
+    if count <= 0
+        clearInterval(intervals[id])
+        el.innerHTML = "<span class=\"shownSpoiler\">#{text}</span>"
+
+    else
+        el.innerHTML = "<span id=\"#{id}\" class=\"hiddenSpoiler\">#{count.toFixed(5)}</span>"
+
+newfTimer = (text, count, id) ->
+    if not id?
+        id = "timer#{timerNums}"
+
+    if (count = +count) < 1
+        count = 1
+
+    timerNums++
+    timerContent[id] = text
+
+    targ = (+new Date() / 1000) + count
+    a = setInterval((-> countfTimer(text, id, targ)), 20)
+    intervals[id] = a
+    "<span id=\"#{id}\" class=\"hiddenSpoiler\" onload=\"setTimeout(function(){ countTimer(timerContent[&quot;#{id}&quot;], &quot;#{id}&quot;, #{count} }, 1000)\">#{count}.0</span>"
+
+postSpoiler = (id) ->
+    __wrapper__ = ->
+        el = document.getElementById(id)
+
+        el.addEventListener("change", (e) ->
+            spoilerContent[id] = e.outerHTML
+        )
+
+    __wrapper__
 
 newSpoiler = (text, id) ->
     if not id?
         id = "spoiler#{spoilerNums}"
 
     spoilerNums++
+    spoilerContent[id] = text
 
-    "<span id=\"#{id}\" onclick=\"toggleSpoiler(&quot;#{id}&quot;, &quot;#{text}&quot;)\"><span class=\"hiddenSpoiler\">+</div></span>"
+    setTimeout(100, postSpoiler(id))
+    "<span id=\"#{id}\" onclick=\"toggleSpoiler(&quot;#{id}&quot;, spoilerContent[&quot;#{id}&quot;])\"><span class=\"hiddenSpoiler\">+</div></span>"
 
 toggleSpoiler = (id, text) ->
     el = document.getElementById(id)
@@ -424,7 +586,8 @@ toggleSpoiler = (id, text) ->
         el.childNodes[0].innerHTML = "+"
 
 disconnect = ->
-    document.getElementById("inputs").parentNode.removeChild(document.getElementById("inputs"))
+    if document.getElementById?
+        document.getElementById("inputs").parentNode.removeChild(document.getElementById("inputs"))
 
     $.ajax(
         "../disconnect", {
@@ -438,9 +601,16 @@ disconnect = ->
     document.getElementById("logs").innerHTML += "</br>--- Disconnected."
 
 window.onload = ->
+    window.onfocus = ->
+        document.title = origTitle
+        selected = true
+
+    window.onblud = ->
+        selected = false
+
+    window.onbeforeunload = disconnect
+
     connect()
 
     nicked = true
     window.setTimeout(mainLoop, 1000)
-
-$('window').on('beforeunload', disconnect)
