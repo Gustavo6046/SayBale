@@ -103,6 +103,8 @@ sbserv.serveAjax = (ip, addr, data) ->
         if not data.reason?
             data.reason = null
 
+        sbserv.disconnect(ip, sbserv.ips[ip], reason)
+
     else if addr == "sendchat"
         if data.text == ""
             return {}

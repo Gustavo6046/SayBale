@@ -106,10 +106,10 @@ codes = ["color&lt;hex&gt;(stuff)", "bg&lt;hex&gt;(stuff)", "spoiler(stuff)", "i
 command = ->
     commandName = document.getElementById("commandName").value
 
-    if commandName == "msg"
-        inputBox = document.getElementById("commandParms")
-        data = inputBox.value
+    inputBox = document.getElementById("commandParms")
+    data = inputBox.value
 
+    if commandName == "msg"
         if data == ""
             return
 
@@ -121,6 +121,20 @@ command = ->
                 data: JSON.stringify({ text: data, nick: nick })
                 success: null
                 contentType: 'application/json'
+            }
+        )
+
+    else if commandName == "disconnect"
+        if document.getElementById?
+            document.getElementById("inputs").parentNode.removeChild(document.getElementById("inputs"))
+            document.getElementById("logs").innerHTML += "</br>--- Disconnected."
+        
+        $.ajax(
+            "../disconnect", {
+                type: "POST"
+                data: JSON.stringify({ reason: data })
+                success: null
+                contentType: "application/json"
             }
         )
 
@@ -588,6 +602,7 @@ toggleSpoiler = (id, text) ->
 disconnect = ->
     if document.getElementById?
         document.getElementById("inputs").parentNode.removeChild(document.getElementById("inputs"))
+        document.getElementById("logs").innerHTML += "</br>--- Disconnected."
 
     $.ajax(
         "../disconnect", {
@@ -597,8 +612,6 @@ disconnect = ->
             contentType: 'application/json'
         }
     )
-
-    document.getElementById("logs").innerHTML += "</br>--- Disconnected."
 
 window.onload = ->
     window.onfocus = ->
