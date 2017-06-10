@@ -14,6 +14,13 @@
 | userlist        |               | users admins       |
 
 # Notes
+## connect
+- Status:
+
+    0 = success
+    1 = name taken
+    2 = IP banned
+
 ## getchat
 - `next` is the time recommended until the next `../getchat` query. 
 - `logs` may contain formatting which is resolved by client.js in the SayBale website, but it can be ignored.
